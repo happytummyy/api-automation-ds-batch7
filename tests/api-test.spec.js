@@ -3,22 +3,19 @@ const {Ajv} = require("ajv");
 
 const ajv = new Ajv()
 
-test('Test Case 1', async ( { request } ) => {
-    const response = await request.get('https://api.restful-api.dev/objects/7') ;
-    //console.log(response.status());
-    //console.log(response.body());
-    //console.log(await response.json());
+test('Test GET', async ( { request } ) => {
+    const response = await request.get('https://reqres.in/api/users/2') ;
 
     expect(response.status()).toBe(200)
 
     const responseData = await response.json()
 
-    expect(responseData.id).toBe("7")
-    expect(responseData.name).toBe("Apple MacBook Pro 16")
-    expect(responseData.data.year).toBe(2019)
-    expect(responseData.data["CPU model"]).toBe("Intel Core i9")
+    expect(responseData.data.id).toBe(2)
+    expect(responseData.data.email).toBe("janet.weaver@reqres.in")
+    expect(responseData.data.first_name).toBe("Janet")
+    expect(responseData.data.last_name).toBe("Weaver")
 
-    const valid = ajv.validate(require('./jsonschema/get-object-schema.json'), responseData);
+    const valid = ajv.validate(require('./jsonschema/tugas-get-schema.json'), responseData);
 
     if(!valid){
         console.error("AJV Validation Errors:",ajv.errorsText);
@@ -27,47 +24,77 @@ test('Test Case 1', async ( { request } ) => {
 });
 
 
-test('Test Case 2', async ( { request } ) => {
+test('Test POST', async ( { request } ) => {
     const bodyData = {
-        "name": "Laptop DS Batch 7",
-        "data": {
-           "year": 2019,
-           "price": 1849.99,
-           "CPU model": "Intel Core i9",
-           "Hard disk size": "1 TB"
-        }
-     }
+        "email": "eve.holt@reqres.in",
+        "password": "cityslicka"
+    }
 
     const headerData = {
         Accept: 'application/json'
     }
-    
-    const response = await request.post('https://api.restful-api.dev/objects', {
+
+    const response = await request.post('https://reqres.in/api/login', {
         headers: headerData,
         data: bodyData
-    })
-    console.log(response.status());
-    console.log(await response.json());
-});
+    }) ;
+    
+    expect(response.status()).toBe(200)
 
-/*
-test.describe('Positive Test Cases', () => {
-    test('Test Case 1', async ({ }) => {
-        console.log("Ini dieksekusi dari Test Case 1")
-    });
+    const responseData = await response.json()
 
-    test('Test Case 2', async ({ }) => {
-        console.log("Ini diekseskusi dari Test Case 2")
-    });
+    const valid = ajv.validate(require('./jsonschema/tugas-post-schema.json'), responseData);
 
-});
+    if(!valid){
+        console.error("AJV Validation Errors:",ajv.errorsText);
+    }
+    expect(valid).toBe(false);
 
-test.describe('Negative Test Cases', () => {
-    test('Test Case 3', async ({ }) => {
-        console.log("Ini diekseskusi dari Test Case 3")
-    });
 
 });
-*/
 
+test('Test DELETE', async ( { request } ) => {
+
+    const response = await request.delete('https://reqres.in/api/USERS/2') ;
+
+    expect(response.status()).toBe(204)
+
+    //console.log(response.status());
+    //console.log(response.body());
+
+
+});
+
+test('Test PUT', async ( { request } ) => {
+
+    const bodyData = {
+        "name": "morpheus",
+        "job": "zion resident"
+    }
+
+    const headerData = {
+        Accept: 'application/json'
+    }
+
+    const response = await request.put('https://reqres.in/api/users/2', {
+        headers: headerData,
+        data: bodyData
+    }) ;
+
+    expect(response.status()).toBe(200)
+
+    const responseData = await response.json()
+
+    expect(responseData.name).toBe("morpheus")
+    expect(responseData.job).toBe("zion resident")
+
+    const valid = ajv.validate(require('./jsonschema/tugas-put-schema.json'), responseData);
+
+    if(!valid){
+        console.error("AJV Validation Errors:",ajv.errorsText);
+    }
+    expect(valid).toBe(true);
+
+
+});
 
